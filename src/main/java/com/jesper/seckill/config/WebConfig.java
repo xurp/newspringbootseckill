@@ -10,7 +10,8 @@ import java.util.List;
 /**
  * Created by jiangyunxiong on 2018/5/22.
  *
- * 自定参数解析器, 作用：改变SpringMVC的Controller传入参数，实现可以User替换Token做为参数从登陆页面传到商品列表页面
+ * [不同]自定参数解析器, 作用：改变SpringMVC的Controller传入参数，实现可以User替换Token做为参数从登陆页面传到商品列表页面
+ * [不同]作者原注释：token存在cookie保存状态，当用户访问商品列表时，直接把token转成User
  */
 @Configuration
 public class WebConfig extends WebMvcConfigurerAdapter{

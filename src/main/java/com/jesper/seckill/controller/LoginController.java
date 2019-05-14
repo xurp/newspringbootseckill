@@ -20,7 +20,7 @@ import javax.validation.Valid;
 @Controller
 @RequestMapping("/login")
 public class LoginController {
-
+    //[不同]slf4j
     private static Logger log = LoggerFactory.getLogger(LoginController.class);
 
     @Autowired

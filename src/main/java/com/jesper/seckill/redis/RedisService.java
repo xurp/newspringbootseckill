@@ -47,7 +47,7 @@ public class RedisService {
                 return false;
             }
             String realKey = prefix.getPrefix() + key;
-            int seconds = prefix.expireSeconds();//获取过期时间
+            int seconds = prefix.expireSeconds();//[不同]这里是把过期时间封装在prefix里,个人认为这种虽然省事,但不灵活?--获取过期时间
             if (seconds <= 0) {
                 jedis.set(realKey, str);
             } else {

@@ -9,6 +9,22 @@ import java.util.concurrent.Executors;
 
 /**
  * Created by jiangyunxiong on 2018/5/31.
+ * 这是一个不用看的测试类
+ * 测试结果:
+ * 等待时间：0.0
+   0
+        等待时间：0.492091
+   1 
+       等待时间：0.496463
+   2
+       等待时间：0.499944
+   3
+       等待时间：0.499752
+   4
+       等待时间：0.499148
+   5
+       等待时间：0.500115
+   6
  */
 public class RateLimiterDemo {
     public static void main(String[] args) {

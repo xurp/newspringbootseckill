@@ -8,7 +8,7 @@ public abstract class BasePrefix implements KeyPrefix {
     private int expireSeconds;
 
     private String prefix;
-
+    //[不同]这里在BasePrefix还封装了一个超时时间
     public BasePrefix(String prefix){
         this(0, prefix);//默认0代表永不过期
     }

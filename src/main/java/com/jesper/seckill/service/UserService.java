@@ -47,6 +47,7 @@ public class UserService {
 
     /**
      * 典型缓存同步场景：更新密码
+     * [不同]这里用了MD5Util.formPassToDBPass
      */
     public boolean updatePassword(String token, long id, String formPass) {
         //取user
@@ -59,7 +60,7 @@ public class UserService {
         toBeUpdate.setId(id);
         toBeUpdate.setPassword(MD5Util.formPassToDBPass(formPass, user.getSalt()));
         userMapper.update(toBeUpdate);
-        //更新缓存：先删除再插入
+        //[不同]更新缓存：先删除再插入(不知道为什么)
         redisService.delete(UserKey.getById, ""+id);
         user.setPassword(toBeUpdate.getPassword());
         redisService.set(UserKey.token, token, user);
@@ -84,7 +85,7 @@ public class UserService {
         if (!calcPass.equals(dbPass)) {
             throw new GlobalException(CodeMsg.PASSWORD_ERROR);
         }
-        //生成唯一id作为token
+        //[不同]生成唯一id作为token.在seckill里,这些工作在MD5Util.formPassToDBPass做了
         String token = UUIDUtil.uuid();
         addCookie(response, token, user);
         return token;
@@ -110,7 +111,7 @@ public class UserService {
             return null;
         }
         User user = redisService.get(UserKey.token, token, User.class);
-        //延长有效期，有效期等于最后一次操作+有效期
+        //[不同]延长有效期，有效期等于最后一次操作+有效期.这个应该是在seckill的SessionExpireFilter里做的
         if (user != null) {
             addCookie(response, token, user);
         }

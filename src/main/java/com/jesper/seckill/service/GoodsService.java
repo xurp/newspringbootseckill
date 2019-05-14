@@ -12,11 +12,12 @@ import java.util.List;
 
 /**
  * Created by jiangyunxiong on 2018/5/22.
+ * [不同]对应SeckillGoodsServiceImpl
  */
 @Service
 public class GoodsService {
 
-    //乐观锁冲突最大重试次数
+    //[不同]乐观锁冲突最大重试次数
     private static final int DEFAULT_MAX_RETRIES = 5;
 
     @Autowired
@@ -46,6 +47,7 @@ public class GoodsService {
      * @return
      */
     public boolean reduceStock(GoodsVo goods) {
+    	//[不同]这里用了乐观锁
         int numAttempts = 0;
         int ret = 0;
         SeckillGoods sg = new SeckillGoods();
@@ -55,6 +57,9 @@ public class GoodsService {
             numAttempts++;
             try {
                 sg.setVersion(goodsMapper.getVersionByGoodsId(goods.getId()));
+                //[不同]update sk_goods_seckill set stock_count = stock_count - 1, version= version + 1 
+                //where goods_id = #{goodsId} and stock_count > 0 and version = #{version}
+                //使用乐观锁尝试更新,防止超卖
                 ret = goodsMapper.reduceStockByVersion(sg);
             } catch (Exception e) {
                 e.printStackTrace();

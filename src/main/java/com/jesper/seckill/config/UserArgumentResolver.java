@@ -25,7 +25,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     UserService userService;
 
     /**
-     * 当参数类型为User才做处理
+     * [不同]覆盖了HandlerMethodArgumentResolver的方法，当参数类型为User才做处理（resolveArgument）
      *
      * @param methodParameter
      * @return
@@ -38,7 +38,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     }
 
     /**
-     * 思路：先获取到已有参数HttpServletRequest，从中获取到token，再用token作为key从redis拿到User，而HttpServletResponse作用是为了延迟有效期
+     * [不同]思路：先获取到已有参数HttpServletRequest，从中获取到token，再用token作为key从redis拿到User，而HttpServletResponse作用是为了延迟有效期
      */
     @Override
     public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer, NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) throws Exception {
@@ -54,7 +54,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         return userService.getByToken(response, token);
     }
 
-    //遍历所有cookie，找到需要的那个cookie
+    //[不同]遍历所有cookie，找到需要的那个cookie
     private String getCookieValue(HttpServletRequest request, String cookiName) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null || cookies.length <= 0) {

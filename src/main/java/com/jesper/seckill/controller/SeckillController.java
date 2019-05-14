@@ -48,18 +48,19 @@ public class SeckillController implements InitializingBean {
     @Autowired
     MQSender sender;
 
-    //基于令牌桶算法的限流实现类
+    //[不同]基于令牌桶算法的限流实现类
     RateLimiter rateLimiter = RateLimiter.create(10);
 
     //做标记，判断该商品是否被处理过了
     private HashMap<Long, Boolean> localOverMap = new HashMap<Long, Boolean>();
 
     /**
+     * [不同]作者原注释,似乎想解释这里为什么用POST:
      * GET POST
      * 1、GET幂等,服务端获取数据，无论调用多少次结果都一样
      * 2、POST，向服务端提交数据，不是幂等
      * <p>
-     * 将同步下单改为异步下单
+     * [不同]将同步下单改为异步下单
      *
      * @param model
      * @param user
@@ -69,7 +70,8 @@ public class SeckillController implements InitializingBean {
     @RequestMapping(value = "/do_seckill", method = RequestMethod.POST)
     @ResponseBody
     public Result<Integer> list(Model model, User user, @RequestParam("goodsId") long goodsId) {
-
+        //[不同]使用guava提供工具库里的RateLimiter类(内部采用令牌捅算法实现)进行限流，似乎就是简单的阻塞后面的请求
+    	//[不同]RateLimiter.create(10)可能是每秒允许10个,1000是超时时间,如果超市返回false即ACCESS_LIMIT_REACHED
         if (!rateLimiter.tryAcquire(1000, TimeUnit.MILLISECONDS)) {
             return  Result.error(CodeMsg.ACCESS_LIMIT_REACHED);
         }
@@ -86,6 +88,11 @@ public class SeckillController implements InitializingBean {
         //预减库存
         long stock = redisService.decr(GoodsKey.getGoodsStock, "" + goodsId);//10
         if (stock < 0) {
+        	//[不同]多了下面三句话,这里的stock应该是防止超卖的,在这里,当超卖时,从数据库取最新的数据放到redis,再判断是不是超卖
+        	//[不同]在下面send了mq之后,数据库会更新库存-1.所以这里的效果是?当redis超卖了但数据库还没超卖(可能另一个人的秒杀还没写到数据库?)那么这次秒杀有效
+        	//[不同]可能和GoodsMapper里的reduceStockByVersion有关(乐观锁).
+        	//[不同]因此会进入消息队列,然后在GoodsService的seckill里判断数据库里的库存能不能用乐观锁减去(GoodsService#reduceStock)
+        	//[不同]乐观锁使得"每次"只有一个人能秒杀成功
             afterPropertiesSet();
             long stock2 = redisService.decr(GoodsKey.getGoodsStock, "" + goodsId);//10
             if(stock2 < 0){
